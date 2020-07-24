@@ -1,6 +1,4 @@
-/**
- * Created by PanJiaChen on 16/11/18.
- */
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * Parse the time to string
@@ -106,4 +104,8 @@ export function param2Obj(url) {
     }
   });
   return obj;
+}
+
+export function uuid() {
+  return uuidv4();
 }

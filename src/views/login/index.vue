@@ -9,52 +9,34 @@
       label-position="left"
     >
       <div class="title-container">
-        <h3 class="title">登录</h3>
+        <h3 class="title">登录 XXXX 系统</h3>
       </div>
-
       <el-form-item prop="phone">
-        <span class="svg-container">
-          <svg-icon icon-class="user" />
-        </span>
-        <el-input
-          ref="phone"
-          v-model="loginForm.phone"
-          placeholder="Username"
-          name="phone"
-          type="text"
-          tabindex="1"
-          auto-complete="on"
-        />
+        <el-input v-model="loginForm.phone" placeholder="请输入手机号码" name="phone" type="text" />
       </el-form-item>
-
       <el-form-item prop="password">
-        <span class="svg-container">
-          <svg-icon icon-class="password" />
-        </span>
-        <el-input
-          :key="passwordType"
-          ref="password"
-          v-model="loginForm.password"
-          :type="passwordType"
-          placeholder="Password"
-          name="password"
-          tabindex="2"
-          auto-complete="on"
-          @keyup.enter.native="handleLogin"
-        />
-        <span class="show-pwd" @click="showPwd">
-          <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
-        </span>
+        <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" name="password" />
       </el-form-item>
-
-      <el-button :loading="loading" type="primary" style="width: 100%;" @click.native.prevent="handleLogin"
-        >登录</el-button
-      >
+      <el-form-item prop="captcha">
+        <el-row>
+          <el-col :span="16">
+            <el-input v-model="loginForm.captcha" placeholder="请输入验证码" />
+          </el-col>
+          <el-col :span="8">
+            <div class="captcha-box" v-html="captchaImg" @click="fetchCaptcha"></div>
+          </el-col>
+        </el-row>
+      </el-form-item>
+      <el-button :loading="loading" type="primary" style="width: 100%;" @click.native.prevent="handleLogin">
+        登录
+      </el-button>
     </el-form>
   </div>
 </template>
 
 <script>
+import request from "@/utils/request";
+
 export default {
   name: "Login",
   data() {
@@ -62,14 +44,16 @@ export default {
       loginForm: {
         phone: "",
         password: "",
+        captcha: "",
       },
       loginRules: {
         phone: [{ required: true, message: "请输入手机号" }],
         password: [{ required: true, message: "请输入密码" }],
+        captcha: [{ required: true, message: "请输入验证码" }],
       },
       loading: false,
-      passwordType: "password",
       redirect: undefined,
+      captchaImg: "",
     };
   },
   watch: {
@@ -80,17 +64,22 @@ export default {
       immediate: true,
     },
   },
+  mounted() {
+    this.fetchCaptcha();
+  },
   methods: {
-    showPwd() {
-      if (this.passwordType === "password") {
-        this.passwordType = "";
-      } else {
-        this.passwordType = "password";
-      }
-      this.$nextTick(() => {
-        this.$refs.password.focus();
+    async fetchCaptcha() {
+      const res = await request({
+        method: "GET",
+        url: "/api/captcha",
       });
+      if (res.success) {
+        this.captchaImg = res.data;
+      } else {
+        this.$message.error(res.message);
+      }
     },
+
     handleLogin() {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
@@ -181,26 +170,6 @@ $light_gray: #eee;
     overflow: hidden;
   }
 
-  .tips {
-    font-size: 14px;
-    color: #fff;
-    margin-bottom: 10px;
-
-    span {
-      &:first-of-type {
-        margin-right: 16px;
-      }
-    }
-  }
-
-  .svg-container {
-    padding: 6px 5px 6px 15px;
-    color: $dark_gray;
-    vertical-align: middle;
-    width: 30px;
-    display: inline-block;
-  }
-
   .title-container {
     position: relative;
 
@@ -213,14 +182,13 @@ $light_gray: #eee;
     }
   }
 
-  .show-pwd {
-    position: absolute;
-    right: 10px;
-    top: 7px;
-    font-size: 16px;
-    color: $dark_gray;
+  .captcha-box {
+    width: 100%;
+    height: 47px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    user-select: none;
   }
 }
 </style>

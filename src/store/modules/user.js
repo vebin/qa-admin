@@ -30,9 +30,9 @@ const mutations = {
 const actions = {
   // user login
   login({ commit }, userInfo) {
-    const { username, password } = userInfo;
+    const { phone, password, captcha } = userInfo;
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password })
+      login({ phone, password, captcha })
         .then((response) => {
           const { data } = response;
           commit("SET_TOKEN", data.token);
@@ -55,10 +55,8 @@ const actions = {
           if (!data) {
             return reject("Verification failed, please Login again.");
           }
-
-          const { name, avatar } = data;
-
-          commit("SET_NAME", name);
+          const { nickname, avatar } = data;
+          commit("SET_NAME", nickname);
           commit("SET_AVATAR", avatar);
           resolve(data);
         })
