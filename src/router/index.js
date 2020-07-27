@@ -46,16 +46,17 @@ export const constantRoutes = [
     meta: { title: "试卷管理", icon: "el-icon-document" },
     children: [
       {
+        path: "update/:id",
+        name: "paper-update",
+        hidden: true,
+        component: () => import("@/views/paper/update"),
+        meta: { title: "更新试卷" },
+      },
+      {
         path: "list",
         name: "paper-list",
         component: () => import("@/views/paper/list"),
         meta: { title: "试卷列表" },
-      },
-      {
-        path: "create",
-        name: "paper-create",
-        component: () => import("@/views/paper/create"),
-        meta: { title: "新增试卷" },
       },
     ],
   },

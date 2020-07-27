@@ -8,31 +8,51 @@
       <el-button type="primary" size="medium" icon="el-icon-search" native-type="button">搜索</el-button>
     </el-form>
 
-    <el-button type="primary" size="small" icon="el-icon-plus" @click="showDialog">新增</el-button>
+    <el-button type="text" icon="el-icon-plus" @click="showDialog()">添加试卷</el-button>
 
-    <el-table size="medium" style="margin: 15px 0;" :loading="loading" :border="true" :stripe="true" :data="list">
+    <el-table size="medium" style="margin: 15px 0;" v-loading="loading" :border="true" :stripe="true" :data="list">
       <el-table-column label="ID" :sortable="true" width="80" prop="id" />
-      <el-table-column label="名称" prop="name" width="200" />
+      <el-table-column label="名称" width="200">
+        <template slot-scope="scope">
+          <router-link :to="'/paper/update/' + scope.row.id" class="el-link el-link--primary">
+            {{ scope.row.name }}
+          </router-link>
+        </template>
+      </el-table-column>
       <el-table-column label="状态">
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.status === 'ENABLE'" type="success">启用</el-tag>
-          <el-tag v-if="scope.row.status === 'DISABLE'" type="danger">停用</el-tag>
+          <el-switch
+            style="display: block;"
+            :value="scope.row.status === 'ENABLE'"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            active-text="启用"
+            inactive-text="停用"
+            @change="switchStatus($event, scope.row.id)"
+          />
         </template>
       </el-table-column>
       <el-table-column label="创建时间" prop="createdAt" />
       <el-table-column label="更新时间" prop="updatedAt" />
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button type="text">编辑</el-button>
-          <el-button type="text">删除</el-button>
+          <router-link :to="'/paper/update/' + scope.row.id" class="el-link el-link--primary">
+            查看
+          </router-link>
+          <el-divider direction="vertical" />
+          <span class="el-link el-link--primary" @click="showDialog(scope.row)">编辑</span>
+          <el-divider direction="vertical" />
+          <el-popconfirm title="删除以后无法恢复, 是否继续？" @onConfirm="removePaper(scope.row.id)">
+            <span slot="reference" class="el-link el-link--danger">删除</span>
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
 
-    <div v-if="0" style="text-align: right; margin: 15px 0;">
+    <div style="text-align: right; margin: 15px 0;">
       <el-pagination
-        :page-size="10"
-        :background="true"
+        :page-size="size"
+        background
         :total="total"
         :current-page="page"
         :page-sizes="[10, 20, 30, 50, 100]"
@@ -61,14 +81,16 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="closeDialog">取消</el-button>
-        <el-button type="primary" @click="createPaper">确定</el-button>
+        <el-button :loading="dialogLoading" type="primary" @click="onDialogOk">确定</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import _ from "lodash";
 import request from "@/utils/request";
+import { sleep } from "@/utils";
 
 export default {
   name: "paper-list",
@@ -76,6 +98,8 @@ export default {
     return {
       formData: {
         name: "",
+        type: "",
+        limit: 10,
       },
       list: [],
       loading: false,
@@ -85,6 +109,7 @@ export default {
 
       visible: false,
       dialogForm: {
+        id: -1,
         name: "",
         type: "PRACTICE",
         limit: 10,
@@ -93,6 +118,7 @@ export default {
         name: [{ required: true, message: "必填项" }],
         type: [{ required: true, message: "必填项" }],
       },
+      dialogLoading: false,
     };
   },
   mounted() {
@@ -114,6 +140,11 @@ export default {
       this.page = 1;
       this.size = 10;
       this.$refs.form.resetFields();
+      this.formData = {
+        name: "",
+        type: "",
+        limit: 10,
+      };
       this.fetchTableData();
     },
 
@@ -164,48 +195,112 @@ export default {
       this.fetchTableData();
     },
 
-    showDialog() {
+    showDialog(paper) {
+      if (paper) {
+        this.dialogForm = _.pick(paper, ["id", "name", "type", "limit"]);
+      }
       this.visible = true;
     },
 
     closeDialog() {
       this.$refs.dialogForm.resetFields();
       this.dialogForm = {
+        id: -1,
         name: "",
         type: "PRACTICE",
+        limit: 10,
       };
       this.visible = false;
     },
 
-    createPaper() {
-      const { name, type, limit } = this.dialogForm;
+    onDialogOk() {
+      const { id, name, type, limit } = this.dialogForm;
       this.$refs.dialogForm.validate(async (valid) => {
         if (!valid) {
           return;
         }
-        const loading = this.$loading();
         // let endAt;
         // if (type === "EXAM") {
         //   const currentTS = +new Date();
         //   endAt = currentTS + limit * 60 * 1000;
         // }
+        this.dialogLoading = true;
         try {
-          const res = await request({
-            method: "POST",
-            url: "/api/paper",
-            data: { name, type, limit },
-          });
+          let params;
+          if (id === -1) {
+            params = {
+              method: "POST",
+              url: `/api/paper`,
+              data: { name, type, limitn },
+            };
+          } else {
+            params = {
+              method: "PUT",
+              url: `/api/paper/${id}`,
+              data: { id, name, type, limit },
+            };
+          }
+          const res = await request(params);
           if (!res.success) {
             this.$message.error(res.message);
             return;
           }
-          this.$router.push(`/paper/create?id=${res.data}`);
+          if (id === -1) {
+            this.$router.push(`/paper/update/${res.data}`);
+          } else {
+            this.$message.success(res.message);
+            await this.fetchTableData();
+          }
+          this.closeDialog();
         } catch (e) {
           this.$message.error(e.message);
         } finally {
-          loading.close();
+          this.dialogLoading = false;
         }
       });
+    },
+
+    async switchStatus(bool, id) {
+      const loading = this.$loading();
+      try {
+        const res = await request({
+          method: "POST",
+          url: `/api/paper/${id}/status`,
+          data: { status: bool ? "ENABLE" : "DISABLE" },
+        });
+        if (!res.success) {
+          this.$message.error(res.message);
+          return;
+        }
+        this.$message.success(res.message);
+        this.fetchTableData();
+      } catch (e) {
+        this.$message.error(e.message);
+      } finally {
+        loading.close();
+      }
+    },
+
+    async removePaper(id) {
+      const loading = this.$loading({ background: "transparent" });
+      try {
+        const res = await request({
+          method: "DELETE",
+          url: `/api/paper/${id}`,
+        });
+        if (!res.success) {
+          this.$message.error(res.message);
+          return;
+        }
+        await sleep(200);
+        await this.fetchTableData();
+        loading.close();
+        this.$message.success(res.message);
+      } catch (e) {
+        this.$message.error(e.message);
+      } finally {
+        loading.close();
+      }
     },
   },
 };

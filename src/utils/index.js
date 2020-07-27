@@ -109,3 +109,9 @@ export function param2Obj(url) {
 export function uuid() {
   return uuidv4();
 }
+
+export const sleep = (t) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => resolve(), t);
+  });
+};
