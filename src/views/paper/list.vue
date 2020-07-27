@@ -78,6 +78,9 @@
           <el-slider v-model="dialogForm.limit" :min="1" :max="120" />
           <div>{{ dialogForm.limit }} 分钟后收卷, 届时学员将无法提交</div>
         </el-form-item>
+        <el-form-item label="描述" prop="desc">
+          <el-input type="textarea" v-model="dialogForm.desc" placeholder="描述信息" maxlength="255" show-word-limit />
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="closeDialog">取消</el-button>
@@ -99,7 +102,6 @@ export default {
       formData: {
         name: "",
         type: "",
-        limit: 10,
       },
       list: [],
       loading: false,
@@ -113,6 +115,7 @@ export default {
         name: "",
         type: "PRACTICE",
         limit: 10,
+        desc: "",
       },
       dialogRules: {
         name: [{ required: true, message: "必填项" }],
@@ -143,7 +146,6 @@ export default {
       this.formData = {
         name: "",
         type: "",
-        limit: 10,
       };
       this.fetchTableData();
     },
@@ -197,7 +199,7 @@ export default {
 
     showDialog(paper) {
       if (paper) {
-        this.dialogForm = _.pick(paper, ["id", "name", "type", "limit"]);
+        this.dialogForm = _.pick(paper, ["id", "name", "type", "limit", "desc"]);
       }
       this.visible = true;
     },
@@ -209,21 +211,15 @@ export default {
         name: "",
         type: "PRACTICE",
         limit: 10,
+        desc: "",
       };
       this.visible = false;
     },
 
     onDialogOk() {
-      const { id, name, type, limit } = this.dialogForm;
+      const { id, name, type, limit, desc } = this.dialogForm;
       this.$refs.dialogForm.validate(async (valid) => {
-        if (!valid) {
-          return;
-        }
-        // let endAt;
-        // if (type === "EXAM") {
-        //   const currentTS = +new Date();
-        //   endAt = currentTS + limit * 60 * 1000;
-        // }
+        if (!valid) return;
         this.dialogLoading = true;
         try {
           let params;
@@ -231,13 +227,13 @@ export default {
             params = {
               method: "POST",
               url: `/api/paper`,
-              data: { name, type, limitn },
+              data: { name, type, limit, desc },
             };
           } else {
             params = {
               method: "PUT",
               url: `/api/paper/${id}`,
-              data: { id, name, type, limit },
+              data: { id, name, type, limit, desc },
             };
           }
           const res = await request(params);
