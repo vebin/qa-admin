@@ -31,7 +31,10 @@ module.exports = {
     },
     proxy: {
       "/api": {
-        target: "http://127.0.0.1:1028",
+        target: "http://127.0.0.1:1029",
+      },
+      "/public": {
+        target: "http://127.0.0.1:1029",
       },
     },
   },

@@ -68,3 +68,13 @@ div:focus {
 .el-card__body {
   padding: 10px 20px;
 }
+
+.el-avatar {
+  background: transparent;
+  margin-right: 5px;
+  cursor: pointer;
+
+  &.active {
+    outline: 1px solid #66b1ff;
+  }
+}
