@@ -6,6 +6,7 @@
       <el-button v-if="questions.length > 0" style="float: right;" type="primary" @click="showReleaseDialog">
         立即发布
       </el-button>
+      <el-button style="float: right;" @click="showQrDialog">查看二维码</el-button>
     </div>
 
     <p v-if="questions.length === 0">暂无题目, 请点击 "添加题目"</p>
@@ -129,6 +130,15 @@
         <el-button type="primary" @click="releasePaper">确 定</el-button>
       </span>
     </el-dialog>
+
+    <el-dialog title="扫描此二维码立即答题" :visible.sync="qrDialog" width="30%">
+      <div style="text-align: center;">
+        <vue-qr :text="qrUrl"></vue-qr>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="qrDialog = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -163,10 +173,13 @@ export default {
       },
       dialogLoading: false,
       releaseConfirm: false,
+      qrDialog: false,
+      qrUrl: ""
     };
   },
   created() {
     this.id = this.$route.params.id;
+    this.qrUrl = `http://qa.util.city/web#/paper/${this.id}`;
     this.fetchQuestions();
   },
   methods: {
@@ -355,6 +368,10 @@ export default {
         answerIds = answerIds.filter((item) => item !== answerId);
       }
       this.dialogForm.answer = _.uniq(answerIds).join(",");
+    },
+
+    showQrDialog() {
+      this.qrDialog = true;
     },
   },
 };

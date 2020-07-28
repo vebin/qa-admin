@@ -1,4 +1,5 @@
 import Vue from "vue";
+import VueQr from "vue-qr";
 
 import "normalize.css/normalize.css";
 
@@ -15,6 +16,7 @@ import "@/icons"; // icon
 import "@/permission"; // permission control
 
 Vue.use(ElementUI);
+Vue.use(VueQr);
 
 Vue.config.productionTip = false;
 
