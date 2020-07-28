@@ -1,5 +1,5 @@
 module.exports = {
-  title: "XXXX 系统",
+  title: "吕梁中信会计答题系统",
 
   /**
    * @type {boolean} true | false
@@ -11,5 +11,5 @@ module.exports = {
    * @type {boolean} true | false
    * @description Whether show the logo in sidebar
    */
-  sidebarLogo: false,
+  sidebarLogo: true,
 };

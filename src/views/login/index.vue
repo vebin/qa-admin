@@ -1,36 +1,32 @@
 <template>
   <div class="login-container">
-    <el-form
-      ref="loginForm"
-      :model="loginForm"
-      :rules="loginRules"
-      class="login-form"
-      auto-complete="on"
-      label-position="left"
-    >
-      <div class="title-container">
-        <h3 class="title">登录 XXXX 系统</h3>
-      </div>
-      <el-form-item prop="phone">
-        <el-input v-model="loginForm.phone" placeholder="请输入手机号码" name="phone" type="text" />
-      </el-form-item>
-      <el-form-item prop="password">
-        <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" name="password" />
-      </el-form-item>
-      <el-form-item prop="captcha">
-        <el-row>
-          <el-col :span="16">
-            <el-input v-model="loginForm.captcha" placeholder="请输入验证码" />
-          </el-col>
-          <el-col :span="8">
-            <div class="captcha-box" v-html="captchaImg" @click="fetchCaptcha"></div>
-          </el-col>
-        </el-row>
-      </el-form-item>
-      <el-button :loading="loading" type="primary" style="width: 100%;" @click.native.prevent="handleLogin">
-        登录
-      </el-button>
-    </el-form>
+    <div class="login-form">
+      <el-form ref="loginForm" :model="loginForm" :rules="loginRules" auto-complete="on" label-position="left">
+        <div class="title-container">
+          <h3 class="title">登录</h3>
+          <p>欢迎使用吕梁中信会计答题系统</p>
+        </div>
+        <el-form-item prop="phone">
+          <el-input v-model="loginForm.phone" placeholder="请输入手机号码" name="phone" type="text" />
+        </el-form-item>
+        <el-form-item prop="password">
+          <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" name="password" />
+        </el-form-item>
+        <el-form-item prop="captcha">
+          <el-row>
+            <el-col :span="16">
+              <el-input v-model="loginForm.captcha" placeholder="请输入验证码" />
+            </el-col>
+            <el-col :span="8">
+              <div class="captcha-box" v-html="captchaImg" @click="fetchCaptcha"></div>
+            </el-col>
+          </el-row>
+        </el-form-item>
+        <el-button :loading="loading" type="primary" style="width: 100%;" @click.native.prevent="handleLogin">
+          登录
+        </el-button>
+      </el-form>
+    </div>
   </div>
 </template>
 
@@ -158,25 +154,35 @@ $light_gray: #eee;
 .login-container {
   min-height: 100%;
   width: 100%;
-  background-color: $bg;
   overflow: hidden;
+  background-image: url("../../assets/login-bg.jpg");
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  background-size: cover;
+  padding-top: 160px;
 
   .login-form {
     position: relative;
     width: 420px;
     max-width: 100%;
-    padding: 160px 35px 0;
+    padding: 30px 20px;
+    border-radius: 5px;
+    background: rgba(45, 58, 75, 0.8);
     margin: 0 auto;
     overflow: hidden;
   }
 
   .title-container {
     position: relative;
+    text-align: center;
+    color: #fff;
+    padding-bottom: 20px;
 
     .title {
       font-size: 26px;
       color: $light_gray;
-      margin: 0px auto 40px auto;
+      margin: 0px auto 30px auto;
       text-align: center;
       font-weight: bold;
     }

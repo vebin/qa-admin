@@ -1,14 +1,16 @@
 <template>
   <div class="qa-bd">
     <el-form ref="form" :model="formData" inline label-suffix="：">
-      <el-form-item prop="nickname">
-        <el-input type="text" placeholder="请输入名称" :clearable="true" v-model="formData.nickname" />
+      <el-form-item prop="name">
+        <el-input type="text" placeholder="请输入名称" :clearable="true" v-model="formData.name" />
       </el-form-item>
-      <el-button size="medium" native-type="button">重置</el-button>
-      <el-button type="primary" size="medium" icon="el-icon-search" native-type="button">搜索</el-button>
+      <el-button native-type="button" @click="reset">重置</el-button>
+      <el-button type="primary" icon="el-icon-search" native-type="button" @click="search">搜索</el-button>
     </el-form>
 
     <el-button type="text" icon="el-icon-plus" @click="showDialog()">添加试卷</el-button>
+
+    <el-alert title="学员只能看见启用中的试卷, 启用中的试卷无法删除, 停用的试卷无法修改!" type="info" />
 
     <el-table size="medium" style="margin: 15px 0;" v-loading="loading" :border="true" :stripe="true" :data="list">
       <el-table-column label="ID" :sortable="true" width="80" prop="id" />
@@ -39,12 +41,16 @@
           <router-link :to="'/paper/update/' + scope.row.id" class="el-link el-link--primary">
             查看
           </router-link>
-          <el-divider direction="vertical" />
-          <span class="el-link el-link--primary" @click="showDialog(scope.row)">编辑</span>
-          <el-divider direction="vertical" />
-          <el-popconfirm title="删除以后无法恢复, 是否继续？" @onConfirm="removePaper(scope.row.id)">
-            <span slot="reference" class="el-link el-link--danger">删除</span>
-          </el-popconfirm>
+          <template v-if="scope.row.status === 'ENABLE'">
+            <el-divider direction="vertical" />
+            <span class="el-link el-link--primary" @click="showDialog(scope.row)">编辑</span>
+          </template>
+          <template v-if="scope.row.status === 'DISABLE'">
+            <el-divider direction="vertical" />
+            <el-popconfirm title="删除以后无法恢复, 是否继续？" @onConfirm="removePaper(scope.row.id)">
+              <span slot="reference" class="el-link el-link--danger">删除</span>
+            </el-popconfirm>
+          </template>
         </template>
       </el-table-column>
     </el-table>

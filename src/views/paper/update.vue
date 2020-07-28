@@ -3,7 +3,7 @@
     <div style="margin-bottom: 15px;">
       <el-button type="text" icon="el-icon-plus" @click="showDialog()">添加题目</el-button>
 
-      <el-button v-if="questions.length > 0" style="float: right;" type="primary" @click="releasePaper">
+      <el-button v-if="questions.length > 0" style="float: right;" type="primary" @click="showReleaseDialog">
         立即发布
       </el-button>
     </div>
@@ -121,6 +121,14 @@
         <el-button :loading="dialogLoading" type="primary" @click="onDialogOk">确定</el-button>
       </span>
     </el-dialog>
+
+    <el-dialog title="是否继续?" :visible.sync="releaseConfirm" width="30%">
+      <span>发布以后试卷将被标记为启用状态, 学员可以开始使用</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="releaseConfirm = false">取 消</el-button>
+        <el-button type="primary" @click="releasePaper">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -154,6 +162,7 @@ export default {
         explain: [{ required: true, message: "必填项" }],
       },
       dialogLoading: false,
+      releaseConfirm: false,
     };
   },
   created() {
@@ -209,6 +218,10 @@ export default {
       } finally {
         loading.close();
       }
+    },
+
+    showReleaseDialog() {
+      this.releaseConfirm = true;
     },
 
     async releasePaper() {

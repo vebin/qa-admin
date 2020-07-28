@@ -5,7 +5,7 @@ import { resetRouter } from "@/router";
 const getDefaultState = () => {
   return {
     token: getToken(),
-    name: "管理员",
+    name: "",
     avatar: "",
   };
 };
@@ -51,6 +51,7 @@ const actions = {
       getInfo(state.token)
         .then((response) => {
           const { data } = response;
+          console.log(response);
 
           if (!data) {
             return reject("Verification failed, please Login again.");
