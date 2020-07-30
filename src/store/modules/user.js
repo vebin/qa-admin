@@ -35,9 +35,13 @@ const actions = {
       login({ phone, password, captcha })
         .then((response) => {
           const { data } = response;
-          commit("SET_TOKEN", data.token);
-          setToken(data.token);
-          resolve();
+          if (data.success) {
+            commit("SET_TOKEN", data.token);
+            setToken(data.token);
+            resolve();
+          } else {
+            reject(new Error(e.message));
+          }
         })
         .catch((error) => {
           reject(error);
