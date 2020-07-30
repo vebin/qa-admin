@@ -33,14 +33,14 @@ const actions = {
     const { phone, password, captcha } = userInfo;
     return new Promise((resolve, reject) => {
       login({ phone, password, captcha })
-        .then((response) => {
-          const { data } = response;
-          if (data.success) {
-            commit("SET_TOKEN", data.token);
-            setToken(data.token);
+        .then((res) => {
+          console.log(res);
+          if (res.success) {
+            commit("SET_TOKEN", res.data.token);
+            setToken(res.token);
             resolve();
           } else {
-            reject(new Error(e.message));
+            reject(new Error(res.message));
           }
         })
         .catch((error) => {
