@@ -86,7 +86,9 @@ export default {
               this.$router.push({ path: this.redirect || "/" });
               this.loading = false;
             })
-            .catch(() => {
+            .catch((e) => {
+              this.fetchCaptcha();
+              this.$message.error(e.message);
               this.loading = false;
             });
         } else {
