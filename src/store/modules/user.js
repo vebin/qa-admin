@@ -34,10 +34,9 @@ const actions = {
     return new Promise((resolve, reject) => {
       login({ phone, password, captcha })
         .then((res) => {
-          console.log(res);
           if (res.success) {
             commit("SET_TOKEN", res.data.token);
-            setToken(res.token);
+            setToken(res.data.token);
             resolve();
           } else {
             reject(new Error(res.message));
